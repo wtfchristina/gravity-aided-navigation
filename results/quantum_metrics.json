@@ -1,0 +1,12 @@
+{
+  "ins_terminal_m": 436.31800502527625,
+  "aided_terminal_m": 97.59540856642982,
+  "ins_rmse_m": 191.93416425782942,
+  "aided_rmse_m": 85.9092689689686,
+  "terminal_improvement_pct": 77.63204647931592,
+  "rmse_improvement_pct": 55.24024120397618,
+  "distance_km": 54.822681574321415,
+  "duration_s": 200.0,
+  "cai_equivalent_gradient_noise_std_E": 9.937888198757765,
+  "cai_scale_factor_rad_per_E": 0.000503125
+}

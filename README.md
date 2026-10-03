@@ -2,75 +2,144 @@
 
 **A RelativisticQ-PNT Research Demonstrator**
 
-This project demonstrates a simulated gravity-aided navigation architecture for an autonomous platform operating without GNSS.
+[![CI](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml/badge.svg)](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml)
 
-A noisy inertial navigation solution is fused with synthetic gravity-gradient observations using an Extended Kalman Filter (EKF). The measurements are matched against a differentiable reference gravity field to constrain accumulated inertial drift.
+This repository is a reproducible research demonstrator for gravity-aided navigation in GNSS-denied environments. It combines inertial propagation, synthetic gravity-gradient maps, Extended Kalman Filter (EKF) state estimation, a simplified cold-atom gravity-gradiometer phase model, and a structure-preserving orbital dynamics benchmark.
 
-> **Scope:** This repository is a research simulation. Results are synthetic and do not represent flight-test or operational hardware performance.
+> **Scope:** All navigation and sensor results in this repository are synthetic simulations. They are not flight-test results, certified navigation performance, or claims of operational quantum-sensor capability.
 
 ## Why this project?
 
-GNSS-denied navigation needs external references that do not depend on satellite RF signals. Gravity-aided navigation is one candidate: spatial variations in Earth's gravity field can provide environmental observables that are independent of GNSS.
+An unaided inertial navigation system accumulates error. A mapped environmental field can provide an external observation that does not depend on GNSS. This project asks a focused software question:
 
-This repository focuses on the software side of that problem:
+> Can a gravity-field observation be turned into a useful state correction in a transparent, reproducible simulation?
+
+The architecture is organized around:
 
 **Physics -> Sensing -> Estimation -> Navigation**
+
+## What is included
+
+### 1. Baseline gravity-aided INS
+
+- Planar truth trajectory
+- Accelerometer noise and bias random walk
+- INS-only dead reckoning
+- Synthetic spatial field
+- Nonlinear EKF map matching
+- Reproducible error metrics and plots
+
+### 2. Gravity-gradient tensor model
+
+A differentiable synthetic potential produces:
+
+- `Txx`
+- `Txy`
+- `Tyy`
+- `Tzz`
+
+with tensor values reported in Eotvos (`1 E = 1e-9 s^-2`). The local synthetic model imposes `Txx + Tyy + Tzz = 0` as a source-free Laplace constraint.
+
+### 3. Cold-atom gradiometer model
+
+A simplified differential phase model is included:
+
+```text
+DeltaPhi ~= k_eff * Gamma * L * T^2
+```
+
+The model supports interrogation time, gradiometer baseline, phase noise, vibration-phase noise, update rate, and conversion from measured phase back to an inferred `Tzz` observation.
+
+### 4. Cold-atom/Tzz-aided EKF demonstration
+
+A high-speed synthetic trajectory uses cold-atom phase observations to provide gravity-gradient updates to the EKF. The default route covers more than 50 km.
+
+### 5. Symplectic dynamics benchmark
+
+A separate two-body Kepler benchmark compares:
+
+- classical fourth-order Runge-Kutta (RK4)
+- implicit midpoint symplectic integration
+
+The benchmark tracks relative Hamiltonian error over multi-day propagation. The purpose is to show long-horizon numerical behavior, not to claim that a symplectic method exactly conserves the original Hamiltonian.
+
+### 6. Interactive Streamlit app
+
+The dashboard exposes three tabs:
+
+- baseline gravity-aided INS
+- cold-atom `Tzz` aiding
+- symplectic orbital dynamics
 
 ## Architecture
 
 ```text
-                 GPS DENIED
-                     |
-                     v
-               +-----------+
-               |    IMU    |
-               +-----+-----+
-                     |
-                     v
-              INS PROPAGATION
-                     |
-                     v
-               +-----------+        Reference
-               |    EKF    | <----- Gravity Map
-               +-----+-----+
-                     ^
-                     |
-          Gravity-Gradient Sensor
-                     |
-                     v
-              z = h(x, y) + noise
-                     |
-                     v
-             CORRECTED NAVIGATION
+                    GNSS unavailable
+                          |
+                          v
+                   +-------------+
+                   |     IMU     |
+                   +------+------+ 
+                          |
+                          v
+                   INS propagation
+                          |
+             +------------+------------+
+             |                         |
+             v                         v
+   Gravity-gradient map       Cold-atom sensor model
+   Txx/Txy/Tyy/Tzz            DeltaPhi ~ k_eff Gamma L T^2
+             |                         |
+             +------------+------------+
+                          |
+                          v
+                 Extended Kalman Filter
+                          |
+                          v
+                 Gravity-aided estimate
 ```
 
-## What the simulation includes
+See [`docs/architecture.md`](docs/architecture.md) and [`docs/methodology.md`](docs/methodology.md).
 
-- Planar truth trajectory across ~50 km
-- Accelerometer noise and time-varying bias
-- INS-only dead reckoning
-- Synthetic spatial gravity-gradient field
-- Noisy gravity measurements at a lower update rate
-- Nonlinear EKF map matching
-- Reproducible metrics and plots
-- Interactive Streamlit demo
-- Unit tests
+## Reproducible default results
 
-## Example results
+### Baseline scalar-map demonstration
 
-Run:
+The current deterministic default configuration produces approximately:
 
-```bash
-python scripts/generate_figures.py
-```
+| Metric | INS only | Gravity-aided |
+|---|---:|---:|
+| Terminal position error | 1109 m | 46 m |
+| Position RMSE | 601 m | 267 m |
 
-The script generates:
+Route length: approximately 51.2 km.
+
+### Cold-atom `Tzz` demonstration
+
+The default high-speed synthetic configuration covers approximately 54.8 km and produces approximately:
+
+| Metric | INS only | CAI gravity-aided |
+|---|---:|---:|
+| Terminal position error | 436 m | 98 m |
+| Position RMSE | 192 m | 86 m |
+
+The default simplified sensor configuration corresponds to an equivalent gravity-gradient noise of roughly 9.9 E per measurement.
+
+These values are generated by the code and are provided so users can confirm reproducibility. They should **not** be interpreted as predictions of real hardware performance.
+
+## Generated figures
+
+The repository includes scripts that produce:
 
 - `figures/trajectory_comparison.png`
 - `figures/position_error.png`
 - `figures/gravity_map.png`
-
-Results are generated from the simulation rather than hard-coded.
+- `figures/quantum_trajectory_comparison.png`
+- `figures/quantum_position_error.png`
+- `figures/tzz_map.png`
+- `figures/cold_atom_phase.png`
+- `figures/symplectic_energy_error.png`
+- `figures/symplectic_orbit.png`
 
 ## Quick start
 
@@ -78,67 +147,109 @@ Results are generated from the simulation rather than hard-coded.
 git clone https://github.com/wtfchristina/gravity-aided-navigation.git
 cd gravity-aided-navigation
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\\Scripts\\activate
-pip install -e .
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+```
+
+Run the baseline simulation:
+
+```bash
 python scripts/run_simulation.py
 python scripts/generate_figures.py
 ```
 
-Run the interactive demo:
+Run the cold-atom gravity-gradient simulation:
 
 ```bash
-pip install streamlit
+python scripts/run_quantum_simulation.py
+python scripts/generate_quantum_figures.py
+```
+
+Run the symplectic benchmark:
+
+```bash
+python scripts/run_symplectic_benchmark.py
+```
+
+Run the interactive dashboard:
+
+```bash
 streamlit run app.py
 ```
 
 Run tests:
 
 ```bash
-pip install pytest
 pytest -q
 ```
 
-## Core estimator state
+## Repository layout
 
 ```text
-x = [position_x,
-     position_y,
-     velocity_x,
-     velocity_y,
-     accel_bias_x,
-     accel_bias_y]
+gravity-aided-navigation/
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── CITATION.cff
+├── SECURITY.md
+├── app.py
+├── pyproject.toml
+├── requirements.txt
+├── src/gravity_nav/
+│   ├── dynamics.py
+│   ├── gravity_map.py
+│   ├── gravity_tensor.py
+│   ├── imu.py
+│   ├── sensor.py
+│   ├── cold_atom.py
+│   ├── ekf.py
+│   ├── tensor_ekf.py
+│   ├── simulation.py
+│   ├── quantum_simulation.py
+│   ├── symplectic.py
+│   └── metrics.py
+├── scripts/
+├── tests/
+├── notebooks/
+├── docs/
+├── figures/
+├── results/
+└── .github/workflows/ci.yml
 ```
 
-The gravity observation is modeled as:
+## Technical limitations
 
-```text
-z_k = h(position_x, position_y) + measurement_noise
-```
+This demonstrator intentionally does **not** model:
 
-The EKF uses the map gradient to convert a field mismatch into a position correction.
+- full 6-DOF strapdown INS
+- gyroscope and attitude-error states
+- coning/sculling corrections
+- Earth rotation and transport-rate terms in the navigation filter
+- validated airborne or marine gravity maps
+- a flight-qualified cold-atom instrument
+- full atom-optics pulse physics
+- wavefront aberrations, laser noise, vibration transfer functions, or dead-time aliasing
+- navigation integrity monitoring
+- hardware-in-the-loop or flight validation
+
+See the methodology document for a fuller discussion.
 
 ## Research roadmap
 
-### Phase 1 - Gravity-aided INS
-Synthetic gravity field + INS + EKF. **This release.**
+Future extensions could include:
 
-### Phase 2 - Gravity-gradient tensor
-Extend the observation model to multiple tensor components such as `Txx`, `Txy`, and `Tzz`.
+1. Full 6-DOF Earth-referenced strapdown navigation
+2. Multiple gravity-gradient tensor components in one measurement update
+3. Public geodetic/gravity datasets
+4. More complete atom-interferometer error models
+5. Particle filters, factor graphs, and batch smoothing
+6. Hardware timing benchmarks on embedded targets
+7. High-fidelity geopotential and relativistic correction studies
 
-### Phase 3 - Cold-atom sensor model
-Add matter-wave phase observations, interrogation time, sensor dead time, phase noise, and vibration sensitivity.
+## Responsible use
 
-### Phase 4 - Structure-preserving dynamics
-Add a separate Hamiltonian propagation benchmark comparing RK methods with implicit-midpoint symplectic integration.
-
-### Phase 5 - High-fidelity Earth model
-Replace the synthetic field with public gravity/geopotential data and move toward 3D Earth-referenced navigation.
-
-## Limitations
-
-The current implementation intentionally uses simplified planar dynamics and a synthetic field. It does **not** model full 6-DOF strapdown INS, a flight-qualified cold-atom sensor, validated operational gravity-map accuracy, or real-world environmental disturbances.
-
-See [`docs/methodology.md`](docs/methodology.md) for details.
+This repository is intended for research, education, and software-method exploration. It is not certified for safety-critical or operational navigation. See [`SECURITY.md`](SECURITY.md).
 
 ## Author
 

@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: Gravity-Aided Navigation for GPS-Denied Systems
+message: "If you use this research demonstrator, please cite the repository."
+type: software
+authors:
+  - family-names: Holt
+    given-names: Christina
+repository-code: "https://github.com/wtfchristina/gravity-aided-navigation"
+license: MIT
+version: 0.2.0
+date-released: 2026-10-03

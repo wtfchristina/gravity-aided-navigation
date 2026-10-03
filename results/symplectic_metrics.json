@@ -1,0 +1,8 @@
+{
+  "duration_s": 600000.0,
+  "dt_s": 120.0,
+  "rk4_max_abs_relative_energy_error": 0.0007680084983589255,
+  "midpoint_max_abs_relative_energy_error": 0.0001852277175818755,
+  "rk4_terminal_abs_relative_energy_error": 0.0007680084983589255,
+  "midpoint_terminal_abs_relative_energy_error": 2.855214505813972e-07
+}

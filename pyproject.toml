@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gravity-aided-navigation"
-version = "0.2.0"
-description = "A RelativisticQ-PNT research demonstrator for GPS-denied gravity-aided and cold-atom navigation."
+version = "0.4.0"
+description = "An Assured PNT mission-requirements, integrity, and environmental navigation trade-study suite."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "Christina Holt"}]
@@ -15,6 +15,7 @@ dependencies = [
   "scipy>=1.11",
   "matplotlib>=3.8",
   "pandas>=2.1",
+  "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -22,3 +23,6 @@ dev = ["pytest>=8.0", "streamlit>=1.35", "jupyter>=1.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.scripts]
+qpnt = "gravity_nav.cli:main"

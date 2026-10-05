@@ -2,8 +2,9 @@ numpy>=1.26
 scipy>=1.11
 matplotlib>=3.8
 pandas>=2.1
-streamlit>=1.35
-pytest>=8.0
-jupyter>=1.0
-
 PyYAML>=6.0
+
+[dev]
+pytest>=8.0
+streamlit>=1.35
+jupyter>=1.0

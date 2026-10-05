@@ -1,3 +1,23 @@
+Metadata-Version: 2.4
+Name: gravity-aided-navigation
+Version: 0.4.0
+Summary: An Assured PNT mission-requirements, integrity, and environmental navigation trade-study suite.
+Author: Christina Holt
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.26
+Requires-Dist: scipy>=1.11
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: pandas>=2.1
+Requires-Dist: PyYAML>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: streamlit>=1.35; extra == "dev"
+Requires-Dist: jupyter>=1.0; extra == "dev"
+Dynamic: license-file
+
 # Gravity-Aided Navigation / Assured PNT Trade Study Suite
 
 **A RelativisticQ-PNT research and engineering demonstrator**
@@ -360,8 +380,8 @@ This project is intended for research, engineering trade studies, education, and
 
 ## Author
 
-**Christina Holt**  
-RelativisticQ-PNT  
+**Christina Holt**
+RelativisticQ-PNT
 GitHub: [@wtfchristina](https://github.com/wtfchristina)
 Website: [www.qpnt.us](https://www.qpnt.us)
 

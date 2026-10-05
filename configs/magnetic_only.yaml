@@ -1,0 +1,8 @@
+scenario:
+  duration_s: 600.0
+  dt: 0.5
+  speed_mps: 83.0
+  seed: 21
+  mode: magnetic
+  magnetic_noise_std_nt: 8.0
+  magnetic_update_period_s: 1.0

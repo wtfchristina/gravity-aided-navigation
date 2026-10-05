@@ -1,0 +1,27 @@
+{
+  "mode": "fused",
+  "distance_km": 51.17546350801081,
+  "ins_terminal_m": 3937.9382245573524,
+  "aided_terminal_m": 6.8187351901820294,
+  "ins_rmse_m": 1717.619408366404,
+  "aided_rmse_m": 74.39852929479767,
+  "terminal_improvement_pct": 99.82684504425032,
+  "rmse_improvement_pct": 95.66850904615961,
+  "gravity_updates_accepted": 301,
+  "magnetic_updates_accepted": 601,
+  "config": {
+    "duration_s": 600.0,
+    "dt": 0.5,
+    "speed_mps": 83.0,
+    "seed": 21,
+    "mode": "fused",
+    "accel_noise_std": 0.03,
+    "bias_rw_std": 0.0008,
+    "initial_bias_std": 0.015,
+    "gravity_noise_std": 2.0,
+    "gravity_update_period_s": 2.0,
+    "magnetic_noise_std_nt": 8.0,
+    "magnetic_update_period_s": 1.0,
+    "innovation_gate_sigma": 5.0
+  }
+}

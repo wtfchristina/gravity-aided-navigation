@@ -23,3 +23,18 @@ app:
 	streamlit run app.py
 
 all: test baseline quantum figures symplectic
+
+assured:
+	PYTHONPATH=src python scripts/run_assured_pnt.py
+
+monte-carlo:
+	PYTHONPATH=src python scripts/run_monte_carlo.py
+
+trade-study:
+	PYTHONPATH=src python scripts/run_trade_study.py
+
+assured-figures:
+	PYTHONPATH=src python scripts/generate_assured_pnt_figures.py
+
+dashboard:
+	streamlit run app.py

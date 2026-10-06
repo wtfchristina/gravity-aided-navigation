@@ -9,6 +9,9 @@ from .fusion import FusionEKF, FieldObservation
 from .packets import SensorPacket
 from .gateway import GatewayConfig, NavigationGateway
 from .hil import HILConfig, run_hil_demo
+from .geogrid import GeoGridMap, LocalENUFieldMap
+from .sensor_profiles import SensorProfile, PROFILES, apply_profile
+from .validation import compare_modes, summarize_validation
 
 __all__ = [
     "SimulationConfig", "run_simulation",
@@ -16,6 +19,8 @@ __all__ = [
     "AssuredPNTConfig", "run_assured_pnt",
     "SyntheticMagneticMap", "GridFieldMap", "FusionEKF", "FieldObservation",
     "SensorPacket", "GatewayConfig", "NavigationGateway", "HILConfig", "run_hil_demo",
+    "GeoGridMap", "LocalENUFieldMap", "SensorProfile", "PROFILES", "apply_profile",
+    "compare_modes", "summarize_validation",
 ]
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"

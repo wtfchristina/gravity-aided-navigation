@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.0
+
+### Added
+- WGS-84 geodetic, ECEF, and local-ENU coordinate transformations.
+- `GeoGridMap` for latitude/longitude CSV and NPZ products.
+- Optional NetCDF and GeoTIFF ingestion through the `geospatial` extra.
+- `LocalENUFieldMap` wrapper for using geodetic grids with existing fusion filters.
+- Illustrative sensor-grade profiles and profile-driven validation.
+- Smooth map bias/scale/mismatch perturbation utility.
+- Reproducible multi-mode validation campaigns with median and p95 reporting.
+- `qpnt validate`, `validate-geodetic`, `geodetic-demo`, `map-info`, and `sensor-profiles` CLI workflows.
+- Documentation for real/public/customer data workflows and v0.7 commercial positioning.
+
+### Scope
+- Bundled geodetic demo maps contain synthetic values and are not survey products.
+- External datasets remain subject to their own datum, units, uncertainty, provenance, and licensing requirements.
+
 ## 0.6.0
 
 - Added Sensor Adapter SDK with mapping, canonical JSON, and reference IMU adapters.

@@ -1,0 +1,17 @@
+{
+  "version": "0.7.0",
+  "theme": "Geodetic Data & Validation",
+  "major_features": [
+    "WGS-84 geodetic/ECEF/ENU transforms",
+    "Geodetic CSV/NPZ map ingestion",
+    "Optional NetCDF/GeoTIFF ingestion",
+    "Local ENU map wrappers",
+    "Illustrative sensor profiles",
+    "Map error modeling",
+    "Repeated validation campaigns",
+    "User-supplied geodetic map validation"
+  ],
+  "scope": "Bundled geodetic example field values are synthetic; external real-world datasets are not redistributed or validated by this release.",
+  "file_count": 182,
+  "tests_passing": 36
+}

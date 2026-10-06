@@ -14,12 +14,14 @@ from gravity_nav.requirements import MissionRequirement, solve_sensor_requiremen
 from gravity_nav.integrity import IntegrityConfig, single_run_integrity
 from gravity_nav.hil import HILConfig, run_hil_demo
 from gravity_nav.adapters import default_registry
+from gravity_nav.sensor_profiles import PROFILES, apply_profile
+from gravity_nav.validation import compare_modes, summarize_validation
 
 st.set_page_config(page_title="RelativisticQ-PNT Research Demonstrator", layout="wide")
 st.title("Gravity-Aided Navigation in a GPS-Denied Environment")
 st.caption("RelativisticQ-PNT research demonstrator — synthetic simulations, not flight-test or operational performance.")
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity", "SIL/HIL integration", "Integration SDK"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity", "SIL/HIL integration", "Integration SDK", "Validation"])
 
 with tab1:
     with st.sidebar:
@@ -196,7 +198,23 @@ with tab7:
     c3.metric("gRPC auth", "Bearer + optional TLS")
     st.caption("ROS 2 and gRPC are integration references, not certified avionics interfaces. Customer-specific adapters can remain in private packages.")
 
+with tab8:
+    st.subheader("v0.7 Geodetic data & validation")
+    st.write("Run reproducible multi-mode validation using illustrative sensor profiles. Geodetic CSV/NPZ/NetCDF/GeoTIFF adapters are available in the Python package for user-supplied public or proprietary maps.")
+    profile_name=st.selectbox("Illustrative sensor profile", list(PROFILES), index=1)
+    runs=st.slider("Validation runs per mode", 3, 30, 8, 1)
+    vcfg=apply_profile(AssuredPNTConfig(duration_s=180.0,mode="fused"),profile_name)
+    if st.button("Run validation campaign"):
+        vdf=compare_modes(vcfg,runs=runs)
+        vs=summarize_validation(vdf)
+        st.dataframe(vs,use_container_width=True)
+        fig8=plt.figure(figsize=(9,4.5))
+        labels=list(vs['mode']); vals=list(vs['terminal_median_m'])
+        plt.bar(labels,vals); plt.ylabel("Median terminal error (m)"); plt.title("Reproducible navigation validation")
+        plt.grid(True,axis="y",alpha=0.25); plt.tight_layout(); st.pyplot(fig8)
+    st.caption("Bundled geodetic example grids are synthetic and are included only to exercise the ingestion/coordinate pipeline. Bring externally licensed gravity or magnetic products for real-data studies.")
+
 with st.expander("Scope and limitations"):
     st.markdown("""
-This repository intentionally uses synthetic gravity fields, planar kinematics, and simplified cold-atom measurement equations. It demonstrates software architecture, map matching, estimator behavior, and numerical methods. It is not a flight-qualified navigation system, certified avionics interface, hardware validation result, or claim of operational quantum-sensor performance.
+This repository includes synthetic demonstration fields plus adapters for user-supplied geodetic datasets. Bundled examples remain synthetic. The navigation core still uses simplified planar kinematics and cold-atom measurement equations. It demonstrates software architecture, map matching, estimator behavior, and numerical methods. It is not a flight-qualified navigation system, certified avionics interface, hardware validation result, or claim of operational quantum-sensor performance.
 """)

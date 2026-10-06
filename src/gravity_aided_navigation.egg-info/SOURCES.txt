@@ -10,6 +10,8 @@ src/gravity_aided_navigation.egg-info/top_level.txt
 src/gravity_nav/__init__.py
 src/gravity_nav/adapters.py
 src/gravity_nav/assured_pnt.py
+src/gravity_nav/benchmark.py
+src/gravity_nav/benchmark_reporting.py
 src/gravity_nav/cli.py
 src/gravity_nav/cold_atom.py
 src/gravity_nav/config.py
@@ -35,6 +37,7 @@ src/gravity_nav/monte_carlo.py
 src/gravity_nav/observability.py
 src/gravity_nav/packets.py
 src/gravity_nav/protobuf_contract.py
+src/gravity_nav/public_data.py
 src/gravity_nav/quantum_simulation.py
 src/gravity_nav/replay.py
 src/gravity_nav/reporting.py
@@ -52,6 +55,7 @@ src/gravity_nav/transport.py
 src/gravity_nav/validation.py
 tests/test_adapters.py
 tests/test_assured_pnt.py
+tests/test_benchmark_reporting.py
 tests/test_cold_atom.py
 tests/test_dynamics.py
 tests/test_ekf.py
@@ -69,6 +73,7 @@ tests/test_mission.py
 tests/test_monte_carlo.py
 tests/test_observability.py
 tests/test_packets.py
+tests/test_public_data.py
 tests/test_quantum_simulation.py
 tests/test_replay.py
 tests/test_requirements.py

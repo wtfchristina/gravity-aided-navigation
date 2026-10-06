@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: gravity-aided-navigation
-Version: 0.7.0
+Version: 0.7.1
 Summary: Assured PNT real-data ingestion, geodetic validation, trade-study, SIL/HIL, and integration suite.
 Author: Christina Holt
 License: MIT
@@ -581,3 +581,9 @@ Website: [www.qpnt.us](https://www.qpnt.us)
 ## License
 
 MIT License. See `LICENSE`.
+
+## Public-Data Benchmark Package
+
+A reproducible benchmark workflow is included under `benchmark/`. It is designed around NGA EGM2008 and NOAA/NGA WMM2025 source products, with explicit data provenance, SHA-256 input hashes, Monte Carlo summary statistics, and generated benchmark reports. Large authoritative datasets are not redistributed in the repository; acquisition/preparation scripts are provided instead.
+
+See `benchmark/README.md` and `docs/public_benchmark_methodology.md`.

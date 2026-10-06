@@ -552,3 +552,9 @@ Website: [www.qpnt.us](https://www.qpnt.us)
 ## License
 
 MIT License. See `LICENSE`.
+
+## Public-Data Benchmark Package
+
+A reproducible benchmark workflow is included under `benchmark/`. It is designed around NGA EGM2008 and NOAA/NGA WMM2025 source products, with explicit data provenance, SHA-256 input hashes, Monte Carlo summary statistics, and generated benchmark reports. Large authoritative datasets are not redistributed in the repository; acquisition/preparation scripts are provided instead.
+
+See `benchmark/README.md` and `docs/public_benchmark_methodology.md`.

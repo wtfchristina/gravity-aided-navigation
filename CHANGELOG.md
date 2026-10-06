@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0
+
+- Added Sensor Adapter SDK with mapping, canonical JSON, and reference IMU adapters.
+- Added third-party adapter discovery through Python entry points.
+- Added optional authenticated gRPC SensorPacket gateway and client.
+- Added optional TLS configuration for the gRPC reference transport.
+- Added protobuf service contract under `proto/sensor_gateway.proto`.
+- Added optional ROS 2 gateway and synthetic publisher bridge.
+- Added Integration SDK tab to the Streamlit demonstrator.
+- Expanded CI to Python 3.10-3.12 with integration dependencies.
+- Added adapter, ROS 2 serialization, gRPC delivery, and auth tests.
+- All integration features remain research/engineering references, not certified avionics interfaces.
+
 ## 0.5.0 - SIL/HIL Integration Layer
 
 - Added transport-neutral timestamped `SensorPacket` messages.

@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml/badge.svg)](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml)
 
-This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.5 adds a software/hardware-in-the-loop integration layer with timestamped sensor packets, JSONL record/replay, UDP transport, link-impairment simulation, stale-data rejection, and estimator-gateway traces.
+This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.6 adds a Sensor Adapter SDK plus optional gRPC and ROS 2 integration on top of the existing trade-study and SIL/HIL stack. Customer-specific hardware translation can now live outside the estimator core while sharing one transport-neutral `SensorPacket` contract.
 
 > **Scope:** All results in this repository are synthetic simulations. They are not flight-test results, certified navigation performance, validated geophysical products, or claims of operational quantum-sensor capability.
 
@@ -20,6 +20,71 @@ The engineering question is not only whether those fields can be measured. It is
 
 Version 0.5 supports that question from both the analysis side and the integration side: reproducible scenario execution, Monte Carlo campaigns, requirements analysis, observability studies, and live/replayed sensor interfaces.
 
+
+## v0.6 Sensor Adapter SDK + gRPC / ROS 2 integration
+
+Version 0.6 focuses on extensibility: connecting customer sensors, simulators, lab instruments, and robotics stacks without modifying the navigation algorithms.
+
+### Sensor Adapter SDK
+
+Implement one small interface to translate an external payload into the canonical packet model:
+
+```python
+from gravity_nav.adapters import SensorAdapter
+from gravity_nav.packets import SensorPacket
+
+class VendorAdapter(SensorAdapter):
+    name = "vendor_sensor"
+
+    def adapt(self, payload) -> SensorPacket:
+        ...
+```
+
+Private integration packages can register adapters through Python entry points and remain separate from the public research core.
+
+```bash
+qpnt adapters
+```
+
+### Authenticated gRPC gateway
+
+Install the optional transport dependencies:
+
+```bash
+pip install -e ".[integration]"
+```
+
+Run a gateway and publish a synthetic sensor stream:
+
+```bash
+qpnt grpc-server configs/fixed_wing_fused.yaml --port 50051 --token change-me
+qpnt grpc-publish configs/fixed_wing_fused.yaml --target 127.0.0.1:50051 --token change-me
+```
+
+The reference gRPC layer supports bearer-token metadata and optional TLS. It is protobuf wire-compatible with `proto/sensor_gateway.proto`, allowing external teams to generate typed clients in their preferred language.
+
+### ROS 2 bridge
+
+In a ROS 2 Python environment:
+
+```bash
+qpnt ros2-gateway configs/fixed_wing_fused.yaml
+qpnt ros2-publish configs/fixed_wing_fused.yaml --speed 10
+```
+
+The reference bridge uses `std_msgs/String` carrying the canonical packet JSON. Production deployments can replace that envelope with custom ROS 2 IDL without changing the estimator or adapter interface.
+
+### Commercial integration boundary
+
+Version 0.6 creates a clean separation between:
+
+- public/research estimator and simulation code
+- proprietary customer sensor adapters
+- customer-specific map connectors
+- HIL/SIL deployment services
+- custom ROS 2/gRPC contracts and assurance artifacts
+
+> gRPC and ROS 2 support are engineering integration references, not certified avionics interfaces or cybersecurity assurance claims.
 
 ## v0.5 SIL/HIL integration capabilities
 

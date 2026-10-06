@@ -17,3 +17,5 @@ __all__ = [
     "SyntheticMagneticMap", "GridFieldMap", "FusionEKF", "FieldObservation",
     "SensorPacket", "GatewayConfig", "NavigationGateway", "HILConfig", "run_hil_demo",
 ]
+
+__version__ = "0.6.0"

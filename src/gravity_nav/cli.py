@@ -16,6 +16,9 @@ from .replay import write_jsonl, read_jsonl, replay_packets
 from .transport import UDPConfig, UDPSender, record_udp
 from .gateway import NavigationGateway
 from .hil import HILConfig, run_hil_demo
+from .adapters import discover_entrypoint_adapters
+from .grpc_transport import GRPCServerConfig, GRPCClientConfig, create_server, GRPCSensorClient
+from .ros2_bridge import run_gateway_node, run_publisher_node
 
 
 def main(argv=None):
@@ -45,11 +48,27 @@ def main(argv=None):
     ur=sp.add_parser('udp-record', help='Record incoming UDP sensor packets to JSONL')
     ur.add_argument('--host',default='127.0.0.1'); ur.add_argument('--port',type=int,default=5555); ur.add_argument('--seconds',type=float,default=10.0); ur.add_argument('--out',default='results/udp_capture.jsonl')
 
+    al=sp.add_parser('adapters', help='List installed Sensor Adapter SDK plug-ins')
+
+    gs=sp.add_parser('grpc-server', help='Run a gRPC SensorPacket gateway')
+    gs.add_argument('config'); gs.add_argument('--host',default='127.0.0.1'); gs.add_argument('--port',type=int,default=50051)
+    gs.add_argument('--token',default=None); gs.add_argument('--tls-cert',default=None); gs.add_argument('--tls-key',default=None)
+
+    gp=sp.add_parser('grpc-publish', help='Publish a generated scenario to a gRPC gateway')
+    gp.add_argument('config'); gp.add_argument('--target',default='127.0.0.1:50051'); gp.add_argument('--token',default=None)
+    gp.add_argument('--tls-root-cert',default=None); gp.add_argument('--limit',type=int,default=0)
+
+    rg=sp.add_parser('ros2-gateway', help='Run the navigation gateway as a ROS 2 subscriber/publisher node')
+    rg.add_argument('config'); rg.add_argument('--input-topic',default='/qpnt/sensor_packets'); rg.add_argument('--output-topic',default='/qpnt/navigation_state')
+
+    rp2=sp.add_parser('ros2-publish', help='Publish generated SensorPackets into ROS 2')
+    rp2.add_argument('config'); rp2.add_argument('--topic',default='/qpnt/sensor_packets'); rp2.add_argument('--speed',type=float,default=10.0)
+
     args=p.parse_args(argv)
 
     if args.cmd in {'requirements','mission-envelope'}:
         cfg, requirement=load_mission_requirement(args.config)
-    elif args.cmd not in {'udp-record'}:
+    elif args.cmd not in {'udp-record','adapters'}:
         cfg=load_config(args.config)
 
     if args.cmd=='run':
@@ -105,5 +124,30 @@ def main(argv=None):
     elif args.cmd=='udp-record':
         n=record_udp(UDPConfig(args.host,args.port),args.seconds,args.out)
         print(f'recorded {n} packets to {args.out}')
+    elif args.cmd=='adapters':
+        registry=discover_entrypoint_adapters()
+        print('\n'.join(registry.names()))
+    elif args.cmd=='grpc-server':
+        gateway=NavigationGateway(cfg)
+        def on_packet(packet):
+            gateway.process(packet)
+            return {'accepted': True, 'filter_time_s': gateway.filter_time_s}
+        server=create_server(GRPCServerConfig(args.host,args.port,args.token,tls_cert=args.tls_cert,tls_key=args.tls_key),on_packet)
+        server.start(); print(f'gRPC gateway listening on {args.host}:{args.port}')
+        try:
+            server.wait_for_termination()
+        except KeyboardInterrupt:
+            server.stop(grace=1)
+    elif args.cmd=='grpc-publish':
+        packets=generate_sensor_packets(cfg,include_truth_reference=False)
+        if args.limit>0: packets=packets[:args.limit]
+        with GRPCSensorClient(GRPCClientConfig(args.target,args.token,args.tls_root_cert)) as client:
+            print(json.dumps(client.health(),indent=2))
+            for packet in packets: client.send(packet)
+        print(f'published {len(packets)} packets to grpc://{args.target}')
+    elif args.cmd=='ros2-gateway':
+        run_gateway_node(NavigationGateway(cfg),input_topic=args.input_topic,output_topic=args.output_topic)
+    elif args.cmd=='ros2-publish':
+        run_publisher_node(generate_sensor_packets(cfg,include_truth_reference=False),topic=args.topic,rate_scale=args.speed)
 
 if __name__=='__main__': main()

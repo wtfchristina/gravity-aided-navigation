@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gravity-aided-navigation"
-version = "0.4.0"
-description = "An Assured PNT mission-requirements, integrity, and environmental navigation trade-study suite."
+version = "0.5.0"
+description = "An Assured PNT trade-study and SIL/HIL integration suite with streaming, replay, and link impairment analysis."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "Christina Holt"}]

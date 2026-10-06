@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 - SIL/HIL Integration Layer
+
+- Added transport-neutral timestamped `SensorPacket` messages.
+- Added JSONL sensor-log generation, record, and replay.
+- Added UDP publisher and recorder interfaces for lab/simulator integration.
+- Added deterministic latency, jitter, and packet-dropout injection.
+- Added estimator-gateway stale-data rejection and packet-level traces.
+- Added offline SIL/HIL demonstration metrics including mean/p95 latency and delivery percentage.
+- Added Streamlit SIL/HIL integration tab.
+- Added packet-schema, integration, commercial-value, and LinkedIn showcase documentation.
+- Added sample replay log and HIL demo outputs.
+- Expanded test suite to 22 passing tests.
+
 ## 0.2.0
 
 - Added a synthetic gravity-gradient tensor model (`Txx`, `Txy`, `Tyy`, `Tzz`).

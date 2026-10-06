@@ -12,12 +12,13 @@ from gravity_nav.metrics import position_errors
 from gravity_nav.symplectic import benchmark
 from gravity_nav.requirements import MissionRequirement, solve_sensor_requirements
 from gravity_nav.integrity import IntegrityConfig, single_run_integrity
+from gravity_nav.hil import HILConfig, run_hil_demo
 
 st.set_page_config(page_title="RelativisticQ-PNT Research Demonstrator", layout="wide")
 st.title("Gravity-Aided Navigation in a GPS-Denied Environment")
 st.caption("RelativisticQ-PNT research demonstrator — synthetic simulations, not flight-test or operational performance.")
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity", "SIL/HIL integration"])
 
 with tab1:
     with st.sidebar:
@@ -155,7 +156,34 @@ with tab5:
     plt.xlabel("Time (s)"); plt.ylabel("Meters"); plt.title("Integrity screening proxy")
     plt.legend(); plt.grid(True,alpha=0.25); plt.tight_layout(); st.pyplot(fig5)
 
+
+with tab6:
+    st.subheader("SIL/HIL transport and timing demonstration")
+    st.write("Inject transport latency, jitter, and packet loss between the synthetic sensor stream and the estimator gateway. This is a laboratory integration harness, not a certified avionics data bus.")
+    c1,c2,c3,c4=st.columns(4)
+    with c1:
+        latency_ms=st.slider("Latency (ms)",0.0,250.0,20.0,5.0)
+    with c2:
+        jitter_ms=st.slider("Jitter std (ms)",0.0,100.0,5.0,1.0)
+    with c3:
+        dropout_pct=st.slider("Packet dropout (%)",0.0,25.0,0.0,0.5)
+    with c4:
+        stale_s=st.slider("Stale threshold (s)",0.1,3.0,0.75,0.05)
+    hcfg=AssuredPNTConfig(duration_s=120.0,mode="fused")
+    htrace,hm=run_hil_demo(hcfg,HILConfig(latency_ms=latency_ms,jitter_ms=jitter_ms,dropout_probability=dropout_pct/100.0,max_measurement_staleness_s=stale_s))
+    h1,h2,h3,h4=st.columns(4)
+    h1.metric("Delivery",f"{hm['transport_delivery_pct']:.1f}%")
+    h2.metric("p95 latency",f"{hm['p95_latency_ms']:.1f} ms")
+    h3.metric("Stale rejected",str(hm['stale_packets_rejected']))
+    h4.metric("Terminal error",f"{hm['terminal_error_m']:.0f} m")
+    if not htrace.empty:
+        fig6=plt.figure(figsize=(10,4.5))
+        plt.plot(htrace.delivery_time_s,htrace.latency_ms)
+        plt.xlabel("Delivery time (s)"); plt.ylabel("Link latency (ms)"); plt.title("Synthetic sensor-link timing trace")
+        plt.grid(True,alpha=0.25); plt.tight_layout(); st.pyplot(fig6)
+        st.dataframe(htrace[["sensor_time_s","delivery_time_s","latency_ms","sensor","status","est_x_m","est_y_m"]].tail(30),use_container_width=True)
+
 with st.expander("Scope and limitations"):
     st.markdown("""
-This repository intentionally uses synthetic gravity fields, planar kinematics, and simplified cold-atom measurement equations. It demonstrates software architecture, map matching, estimator behavior, and numerical methods. It is not a flight-qualified navigation system, hardware-in-the-loop result, or claim of operational quantum-sensor performance.
+This repository intentionally uses synthetic gravity fields, planar kinematics, and simplified cold-atom measurement equations. It demonstrates software architecture, map matching, estimator behavior, and numerical methods. It is not a flight-qualified navigation system, certified avionics interface, hardware validation result, or claim of operational quantum-sensor performance.
 """)

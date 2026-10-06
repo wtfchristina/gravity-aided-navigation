@@ -1,7 +1,7 @@
 {
   "alert_limit_m": 300,
-  "max_position_error_m": 162.3947654007167,
-  "max_protection_level_proxy_m": 148.66825973801338,
+  "max_position_error_m": 162.39476540070294,
+  "max_protection_level_proxy_m": 148.66825973802545,
   "availability_fraction": 1.0,
   "alert_fraction": 0.0,
   "hazardously_misleading_information_proxy_fraction": 0.0,

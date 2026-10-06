@@ -10,6 +10,17 @@ This repository is a configuration-driven Assured PNT simulation and trade-study
 
 > **Scope:** Bundled benchmark results remain simulations. v0.7 can ingest externally sourced geodetic maps, but the repository does not redistribute or validate third-party geophysical products. Results are not flight-test performance, certified navigation performance, or claims of operational quantum-sensor capability.
 
+## Golden Demo
+
+A fixed, presentation-ready Phoenix GNSS-denied scenario is included in `golden_demo/`. Run it with:
+
+```bash
+PYTHONPATH=src python scripts/run_golden_demo.py
+```
+
+It produces 30-run INS / gravity / magnetic / fused comparisons, a representative trajectory, reproducibility metadata, input hashes, and presentation-ready figures. The bundled environmental-field values are synthetic on a real geodetic grid; replace them with provenance-controlled public or customer data for external validation.
+
+
 ## Why this project?
 
 An unaided inertial navigation system accumulates error. Environmental fields such as gravity and magnetic anomalies can provide passive external observations that do not depend on GNSS.

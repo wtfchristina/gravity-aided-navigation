@@ -1,0 +1,12 @@
+{
+  "runs": 30,
+  "profile": "tactical",
+  "ref_lat": 33.4484,
+  "ref_lon": -112.074,
+  "ref_alt": 350.0,
+  "duration_s": 600.0,
+  "gravity_sha256": "eb73b9ae89f3e8378a3d0846d1a2ae19605e05d894ac23b20c5f210419995c85",
+  "magnetic_sha256": "a5e535e69e2f5617b5eff7f10f576991ce0a8f6359e746aaa5badb63e47f8134",
+  "gravity_input": "golden_demo/data/phoenix_gravity_demo.csv",
+  "magnetic_input": "golden_demo/data/phoenix_magnetic_demo.csv"
+}

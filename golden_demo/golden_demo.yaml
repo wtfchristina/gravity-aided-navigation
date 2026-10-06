@@ -1,0 +1,26 @@
+name: phoenix_gnss_denied_golden_demo
+purpose: Reproducible showcase of INS-only vs environmental-field-aided navigation
+reference:
+  lat_deg: 33.4484
+  lon_deg: -112.0740
+  alt_m: 350.0
+mission:
+  duration_s: 600.0
+  dt_s: 0.5
+  nominal_speed_mps: 83.0
+  approximate_distance_km: 50
+sensor_profile: tactical
+monte_carlo_runs: 30
+seed: 42
+modes:
+  - ins
+  - gravity
+  - magnetic
+  - fused
+inputs:
+  gravity_map: golden_demo/data/phoenix_gravity_demo.csv
+  magnetic_map: golden_demo/data/phoenix_magnetic_demo.csv
+notes:
+  - Bundled field values are synthetic but are encoded on a real geodetic grid around Phoenix, Arizona.
+  - Replace the two input maps with provenance-controlled public or customer data for external validation.
+  - Results are simulation outputs, not flight-test, hardware-validation, or certified-navigation claims.

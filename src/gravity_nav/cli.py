@@ -19,6 +19,10 @@ from .hil import HILConfig, run_hil_demo
 from .adapters import discover_entrypoint_adapters
 from .grpc_transport import GRPCServerConfig, GRPCClientConfig, create_server, GRPCSensorClient
 from .ros2_bridge import run_gateway_node, run_publisher_node
+from .sensor_profiles import PROFILES, apply_profile, profiles_as_dict
+from .validation import compare_modes, summarize_validation
+from .geogrid import GeoGridMap, LocalENUFieldMap
+from .geodetic_demo import synthetic_geodetic_field
 
 
 def main(argv=None):
@@ -64,11 +68,27 @@ def main(argv=None):
     rp2=sp.add_parser('ros2-publish', help='Publish generated SensorPackets into ROS 2')
     rp2.add_argument('config'); rp2.add_argument('--topic',default='/qpnt/sensor_packets'); rp2.add_argument('--speed',type=float,default=10.0)
 
+    pr=sp.add_parser('sensor-profiles', help='List illustrative sensor-grade profiles')
+
+    vd=sp.add_parser('validate', help='Run reproducible INS/gravity/magnetic/fused validation campaign')
+    vd.add_argument('config'); vd.add_argument('--runs',type=int,default=30); vd.add_argument('--profile',choices=sorted(PROFILES),default=None); vd.add_argument('--out',default='results/validation_v07.csv')
+
+    vg=sp.add_parser('validate-geodetic', help='Validate against user-supplied geodetic CSV field maps')
+    vg.add_argument('config'); vg.add_argument('--gravity-map',required=True); vg.add_argument('--magnetic-map',required=True)
+    vg.add_argument('--ref-lat',type=float,required=True); vg.add_argument('--ref-lon',type=float,required=True); vg.add_argument('--ref-alt',type=float,default=0.0)
+    vg.add_argument('--runs',type=int,default=30); vg.add_argument('--profile',choices=sorted(PROFILES),default=None); vg.add_argument('--out',default='results/geodetic_validation_v07.csv')
+
+    gd=sp.add_parser('geodetic-demo', help='Generate a geodetic-format demonstration grid (synthetic values)')
+    gd.add_argument('--lat',type=float,default=33.4484); gd.add_argument('--lon',type=float,default=-112.0740); gd.add_argument('--out',default='examples/data/geodetic_demo_grid.csv')
+
+    mi=sp.add_parser('map-info', help='Inspect a geodetic CSV map')
+    mi.add_argument('map'); mi.add_argument('--name',default='field'); mi.add_argument('--units',default='arb')
+
     args=p.parse_args(argv)
 
     if args.cmd in {'requirements','mission-envelope'}:
         cfg, requirement=load_mission_requirement(args.config)
-    elif args.cmd not in {'udp-record','adapters'}:
+    elif args.cmd not in {'udp-record','adapters','sensor-profiles','geodetic-demo','map-info'}:
         cfg=load_config(args.config)
 
     if args.cmd=='run':
@@ -149,5 +169,27 @@ def main(argv=None):
         run_gateway_node(NavigationGateway(cfg),input_topic=args.input_topic,output_topic=args.output_topic)
     elif args.cmd=='ros2-publish':
         run_publisher_node(generate_sensor_packets(cfg,include_truth_reference=False),topic=args.topic,rate_scale=args.speed)
+    elif args.cmd=='sensor-profiles':
+        print(json.dumps(profiles_as_dict(),indent=2))
+    elif args.cmd=='validate':
+        if args.profile: cfg=apply_profile(cfg,args.profile)
+        df=compare_modes(cfg,args.runs); summary=summarize_validation(df)
+        path=Path(args.out); path.parent.mkdir(parents=True,exist_ok=True); df.to_csv(path,index=False)
+        summary.to_csv(path.with_name(path.stem+'_summary.csv'),index=False)
+        print(summary.to_string(index=False))
+    elif args.cmd=='validate-geodetic':
+        if args.profile: cfg=apply_profile(cfg,args.profile)
+        gg=GeoGridMap.from_csv(args.gravity_map,'gravity','map_units'); mg=GeoGridMap.from_csv(args.magnetic_map,'magnetic','map_units')
+        gmap=LocalENUFieldMap(gg,args.ref_lat,args.ref_lon,args.ref_alt); mmap=LocalENUFieldMap(mg,args.ref_lat,args.ref_lon,args.ref_alt)
+        df=compare_modes(cfg,args.runs,gravity_map=gmap,magnetic_map=mmap); summary=summarize_validation(df)
+        path=Path(args.out); path.parent.mkdir(parents=True,exist_ok=True); df.to_csv(path,index=False)
+        summary.to_csv(path.with_name(path.stem+'_summary.csv'),index=False)
+        print(summary.to_string(index=False))
+    elif args.cmd=='geodetic-demo':
+        g=synthetic_geodetic_field(args.lat,args.lon); path=Path(args.out); path.parent.mkdir(parents=True,exist_ok=True); g.to_csv(path)
+        print(f'wrote synthetic geodetic-format demo grid to {path}')
+    elif args.cmd=='map-info':
+        g=GeoGridMap.from_csv(args.map,args.name,args.units)
+        print(json.dumps({'name':g.name,'units':g.units,'lat_min':float(g.lat_deg.min()),'lat_max':float(g.lat_deg.max()),'lon_min':float(g.lon_deg.min()),'lon_max':float(g.lon_deg.max()),'shape':list(g.values.shape),'nan_fraction':float((~__import__('numpy').isfinite(g.values)).mean())},indent=2))
 
 if __name__=='__main__': main()

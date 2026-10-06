@@ -6,9 +6,9 @@
 
 [![CI](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml/badge.svg)](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml)
 
-This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.6 adds a Sensor Adapter SDK plus optional gRPC and ROS 2 integration on top of the existing trade-study and SIL/HIL stack. Customer-specific hardware translation can now live outside the estimator core while sharing one transport-neutral `SensorPacket` contract.
+This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.7 adds geodetic map ingestion, WGS-84/local-frame handling, sensor profiles, map-error modeling, and reproducible validation campaigns on top of the existing trade-study, SIL/HIL, Sensor Adapter SDK, gRPC, and ROS 2 stack.
 
-> **Scope:** All results in this repository are synthetic simulations. They are not flight-test results, certified navigation performance, validated geophysical products, or claims of operational quantum-sensor capability.
+> **Scope:** Bundled benchmark results remain simulations. v0.7 can ingest externally sourced geodetic maps, but the repository does not redistribute or validate third-party geophysical products. Results are not flight-test performance, certified navigation performance, or claims of operational quantum-sensor capability.
 
 ## Why this project?
 
@@ -18,8 +18,62 @@ The engineering question is not only whether those fields can be measured. It is
 
 > **Under what sensor, map, trajectory, and estimator conditions do environmental observations materially reduce navigation drift?**
 
-Version 0.5 supports that question from both the analysis side and the integration side: reproducible scenario execution, Monte Carlo campaigns, requirements analysis, observability studies, and live/replayed sensor interfaces.
+Version 0.7 supports that question from the analysis, data, and integration sides: reproducible scenario execution, geodetic map ingestion, Monte Carlo validation, requirements analysis, observability studies, and live/replayed sensor interfaces.
 
+
+## v0.7 Geodetic data & validation
+
+Version 0.7 is the first release designed explicitly around bringing externally sourced geophysical products into the existing navigation-analysis pipeline.
+
+### WGS-84 and local navigation frames
+
+The package now includes geodetic/ECEF/local-ENU transformations so latitude/longitude products can be consumed by estimators that operate in a local Cartesian frame.
+
+### Geodetic map ingestion
+
+Base installation:
+
+- CSV (`lat_deg,lon_deg,value`)
+- NPZ (`lat_deg`, `lon_deg`, `value`)
+
+Optional `geospatial` extra:
+
+- NetCDF
+- GeoTIFF
+
+```bash
+pip install -e ".[geospatial]"
+```
+
+### Reproducible validation campaigns
+
+Compare matched INS-only, gravity-only, magnetic-only, and fused runs across repeated random realizations:
+
+```bash
+qpnt validate configs/real_data_validation.yaml --runs 30 --profile tactical
+```
+
+Or bring user-supplied geodetic CSV maps:
+
+```bash
+qpnt validate-geodetic configs/real_data_validation.yaml \
+  --gravity-map path/to/gravity.csv \
+  --magnetic-map path/to/magnetic.csv \
+  --ref-lat 33.4484 --ref-lon -112.0740 \
+  --runs 30 --profile tactical
+```
+
+Validation outputs include median, mean, standard deviation, and 95th-percentile terminal error and RMSE by aiding mode.
+
+### Sensor profiles and map uncertainty
+
+The release adds illustrative commercial, tactical, navigation, and quantum-research sensor profiles plus a smooth map-error wrapper for bias, scale error, and spatial mismatch studies. These profiles are engineering assumptions, not vendor specifications.
+
+### Data-provenance boundary
+
+Bundled `phoenix_geodetic_*_demo.csv` files use **synthetic field values on a real latitude/longitude coordinate grid**. They exist to test the pipeline and are not measured geophysical products. Real-data studies are expected to use appropriately licensed public or customer datasets.
+
+See `docs/real_data_validation.md` and `docs/public_data_workflow.md`.
 
 ## v0.6 Sensor Adapter SDK + gRPC / ROS 2 integration
 

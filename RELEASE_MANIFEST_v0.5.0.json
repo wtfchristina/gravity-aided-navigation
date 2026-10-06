@@ -1,0 +1,27 @@
+{
+  "version": "0.5.0",
+  "tests_passing": 22,
+  "new_modules": [
+    "packets.py",
+    "streaming.py",
+    "replay.py",
+    "transport.py",
+    "gateway.py",
+    "hil.py"
+  ],
+  "new_cli_commands": [
+    "hil-demo",
+    "generate-log",
+    "replay",
+    "udp-publish",
+    "udp-record"
+  ],
+  "sample_outputs": [
+    "results/hil_demo_v05.csv",
+    "results/hil_demo_v05.json",
+    "results/replay_trace_v05.csv",
+    "figures/hil_link_timing.png",
+    "figures/hil_position_error.png"
+  ],
+  "scope": "Synthetic research and engineering integration demonstrator; not flight-qualified or certified."
+}

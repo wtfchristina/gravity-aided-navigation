@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml/badge.svg)](https://github.com/wtfchristina/gravity-aided-navigation/actions/workflows/ci.yml)
 
-This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.4 expands the environmental-navigation trade-study suite with mission requirements, empirical integrity screening, sensor requirement solving, and mission-envelope analysis.
+This repository is a configuration-driven Assured PNT simulation and trade-study suite for evaluating environmental map-aided navigation during GNSS outages. Version 0.5 adds a software/hardware-in-the-loop integration layer with timestamped sensor packets, JSONL record/replay, UDP transport, link-impairment simulation, stale-data rejection, and estimator-gateway traces.
 
 > **Scope:** All results in this repository are synthetic simulations. They are not flight-test results, certified navigation performance, validated geophysical products, or claims of operational quantum-sensor capability.
 
@@ -18,9 +18,63 @@ The engineering question is not only whether those fields can be measured. It is
 
 > **Under what sensor, map, trajectory, and estimator conditions do environmental observations materially reduce navigation drift?**
 
-Version 0.3 is designed to support that question with reproducible scenario execution, Monte Carlo campaigns, observability analysis, and sensor trade studies.
+Version 0.5 supports that question from both the analysis side and the integration side: reproducible scenario execution, Monte Carlo campaigns, requirements analysis, observability studies, and live/replayed sensor interfaces.
 
-## v0.4 capabilities
+
+## v0.5 SIL/HIL integration capabilities
+
+Version 0.5 moves the suite beyond offline trade studies toward integration testing. The new transport layer intentionally uses a simple, documented JSON packet schema so simulators, embedded targets, sensor emulators, and other languages can connect without importing the Python estimator package.
+
+### Timestamped sensor packets
+
+The shared packet schema carries sensor time, sequence number, frame, values, and metadata. Supported demonstration packet types include IMU, gravity, magnetic, and truth-reference scoring packets. Truth-reference data is explicitly excluded from navigation inputs.
+
+### JSONL record and replay
+
+Generate or ingest repeatable sensor logs for debugging and regression tests:
+
+```bash
+qpnt generate-log configs/fixed_wing_fused.yaml --out examples/data/sample_sensor_log.jsonl
+qpnt replay configs/fixed_wing_fused.yaml examples/data/sample_sensor_log.jsonl --speed 0
+```
+
+Use `--speed 1` for real-time replay or a larger number for accelerated playback.
+
+### UDP streaming gateway
+
+Publish the synthetic sensor stream over UDP:
+
+```bash
+qpnt udp-publish configs/fixed_wing_fused.yaml --host 127.0.0.1 --port 5555 --speed 10
+```
+
+Record incoming packets from another process, simulator, or lab device:
+
+```bash
+qpnt udp-record --host 127.0.0.1 --port 5555 --seconds 30 --out results/udp_capture.jsonl
+```
+
+### Link-impairment testing
+
+The SIL/HIL harness can inject deterministic latency, jitter, and packet loss before the estimator gateway receives sensor data:
+
+```bash
+qpnt hil-demo configs/fixed_wing_fused.yaml \
+  --latency-ms 30 \
+  --jitter-ms 8 \
+  --dropout 0.02 \
+  --out results/hil_demo
+```
+
+Outputs include delivery percentage, mean/p95 link latency, stale-packet rejection counts, accepted environmental updates, navigation error, and a packet-level integration trace.
+
+### Estimator gateway
+
+`NavigationGateway` decouples the fusion engine from transport. It accepts `SensorPacket` objects regardless of whether they came from a simulation, file replay, UDP socket, or future hardware adapter. This is the intended extension point for customer-specific interfaces.
+
+> The v0.5 UDP and replay tools are engineering integration interfaces, not certified avionics data buses or safety-critical transport implementations.
+
+## v0.4 mission-requirements capabilities
 
 ### Mission requirements solver
 
@@ -228,7 +282,7 @@ Run the default sensor trade study:
 qpnt trade-study configs/fixed_wing_fused.yaml
 ```
 
-Generate the new v0.3 figures:
+Generate the analysis figures:
 
 ```bash
 python scripts/generate_assured_pnt_figures.py
@@ -284,7 +338,8 @@ gravity-aided-navigation/
 │   ├── fixed_wing_fused.yaml
 │   ├── gravity_only.yaml
 │   ├── magnetic_only.yaml
-│   └── mission_requirement.yaml
+│   ├── mission_requirement.yaml
+│   └── hil_demo.yaml
 ├── src/gravity_nav/
 │   ├── assured_pnt.py
 │   ├── fusion.py
@@ -298,6 +353,12 @@ gravity-aided-navigation/
 │   ├── integrity.py
 │   ├── mission.py
 │   ├── requirements_config.py
+│   ├── packets.py
+│   ├── streaming.py
+│   ├── replay.py
+│   ├── transport.py
+│   ├── gateway.py
+│   ├── hil.py
 │   ├── config.py
 │   ├── cli.py
 │   ├── gravity_map.py
@@ -316,7 +377,7 @@ gravity-aided-navigation/
 
 ## Current product-facing value
 
-Version 0.4 is intentionally positioned between a research demo and an engineering decision-support tool. It can already support:
+Version 0.5 is intentionally positioned between a research demonstrator and an engineering integration/decision-support tool. It can already support:
 
 - environmental-navigation concept studies
 - sensor sensitivity analysis
@@ -326,6 +387,10 @@ Version 0.4 is intentionally positioned between a research demo and an engineeri
 - map observability visualization
 - reproducible engineering reports
 - customer-map prototyping through regular-grid ingestion
+- timestamped sensor record/replay
+- UDP-based simulator/lab integration
+- latency, jitter, dropout, and stale-data sensitivity testing
+- packet-level estimator integration traces
 
 See [`docs/productization.md`](docs/productization.md) and [`docs/commercial_overview.md`](docs/commercial_overview.md) for the proposed **Core / Analyst / Integrator** product path. Before publishing proprietary extensions, also review the [`licensing strategy note`](docs/licensing_strategy.md).
 
@@ -337,9 +402,9 @@ A commercial or operational release would still require substantial additional e
 - gyro/attitude error-state modeling
 - Earth rotation and transport-rate terms
 - validated gravity and magnetic data products
-- sensor time synchronization and latency models
+- validated clock synchronization and time-transfer models
 - integrity monitoring and fault detection
-- hardware/software-in-the-loop interfaces
+- production-grade hardware adapters and certified avionics bus interfaces
 - embedded target benchmarking
 - formal requirements, V&V, traceability, and safety assurance
 - customer support, secure update, licensing, and data-handling infrastructure

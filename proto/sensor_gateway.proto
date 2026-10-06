@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package qpnt.v1;
+
+// Production-oriented schema corresponding to the canonical SensorPacket model.
+// The Python reference transport can operate without generated stubs, while
+// external teams may generate typed clients from this contract.
+message NumericValue {
+  string key = 1;
+  double value = 2;
+}
+
+message SensorPacket {
+  string sensor = 1;
+  double timestamp_s = 2;
+  uint64 sequence = 3;
+  repeated NumericValue values = 4;
+  string frame = 5;
+  string metadata_json = 6;
+}
+
+message PushReply {
+  bool accepted = 1;
+  string status = 2;
+  uint64 sequence = 3;
+}
+
+message HealthRequest {}
+message HealthReply { string status = 1; }
+
+service SensorGateway {
+  rpc PushPacket(SensorPacket) returns (PushReply);
+  rpc Health(HealthRequest) returns (HealthReply);
+}

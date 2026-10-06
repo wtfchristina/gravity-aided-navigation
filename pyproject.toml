@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gravity-aided-navigation"
-version = "0.5.0"
-description = "An Assured PNT trade-study and SIL/HIL integration suite with streaming, replay, and link impairment analysis."
+version = "0.6.0"
+description = "An Assured PNT trade-study, SIL/HIL, sensor-adapter, ROS 2, and gRPC integration suite."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "Christina Holt"}]
@@ -20,6 +20,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "streamlit>=1.35", "jupyter>=1.0"]
+integration = ["grpcio>=1.60", "protobuf>=5.0"]
+ros2 = []
 
 [tool.setuptools.packages.find]
 where = ["src"]

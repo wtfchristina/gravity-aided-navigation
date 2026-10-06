@@ -13,12 +13,13 @@ from gravity_nav.symplectic import benchmark
 from gravity_nav.requirements import MissionRequirement, solve_sensor_requirements
 from gravity_nav.integrity import IntegrityConfig, single_run_integrity
 from gravity_nav.hil import HILConfig, run_hil_demo
+from gravity_nav.adapters import default_registry
 
 st.set_page_config(page_title="RelativisticQ-PNT Research Demonstrator", layout="wide")
 st.title("Gravity-Aided Navigation in a GPS-Denied Environment")
 st.caption("RelativisticQ-PNT research demonstrator — synthetic simulations, not flight-test or operational performance.")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity", "SIL/HIL integration"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Baseline gravity-aided INS", "Cold-atom Tzz aiding", "Symplectic dynamics", "Assured PNT trade study", "Mission requirements & integrity", "SIL/HIL integration", "Integration SDK"])
 
 with tab1:
     with st.sidebar:
@@ -182,6 +183,18 @@ with tab6:
         plt.xlabel("Delivery time (s)"); plt.ylabel("Link latency (ms)"); plt.title("Synthetic sensor-link timing trace")
         plt.grid(True,alpha=0.25); plt.tight_layout(); st.pyplot(fig6)
         st.dataframe(htrace[["sensor_time_s","delivery_time_s","latency_ms","sensor","status","est_x_m","est_y_m"]].tail(30),use_container_width=True)
+
+with tab7:
+    st.subheader("Sensor Adapter SDK + external integration")
+    st.write("Version 0.6 separates customer-specific sensor translation from the estimator core. The same SensorPacket contract can be carried by replay files, UDP, gRPC, or ROS 2.")
+    st.code("External sensor / simulator -> Adapter -> SensorPacket -> NavigationGateway -> corrected state", language=None)
+    st.write("Built-in reference adapters:")
+    st.code("\n".join(default_registry().names()), language=None)
+    c1,c2,c3=st.columns(3)
+    c1.metric("Reference transports", "4", help="JSONL replay, UDP, gRPC, ROS 2")
+    c2.metric("Adapter plug-in model", "Entry points")
+    c3.metric("gRPC auth", "Bearer + optional TLS")
+    st.caption("ROS 2 and gRPC are integration references, not certified avionics interfaces. Customer-specific adapters can remain in private packages.")
 
 with st.expander("Scope and limitations"):
     st.markdown("""

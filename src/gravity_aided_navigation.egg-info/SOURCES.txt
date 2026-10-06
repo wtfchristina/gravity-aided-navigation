@@ -8,6 +8,7 @@ src/gravity_aided_navigation.egg-info/entry_points.txt
 src/gravity_aided_navigation.egg-info/requires.txt
 src/gravity_aided_navigation.egg-info/top_level.txt
 src/gravity_nav/__init__.py
+src/gravity_nav/adapters.py
 src/gravity_nav/assured_pnt.py
 src/gravity_nav/cli.py
 src/gravity_nav/cold_atom.py
@@ -19,6 +20,7 @@ src/gravity_nav/gateway.py
 src/gravity_nav/gravity_map.py
 src/gravity_nav/gravity_tensor.py
 src/gravity_nav/grid_map.py
+src/gravity_nav/grpc_transport.py
 src/gravity_nav/hil.py
 src/gravity_nav/imu.py
 src/gravity_nav/integrity.py
@@ -28,11 +30,13 @@ src/gravity_nav/mission.py
 src/gravity_nav/monte_carlo.py
 src/gravity_nav/observability.py
 src/gravity_nav/packets.py
+src/gravity_nav/protobuf_contract.py
 src/gravity_nav/quantum_simulation.py
 src/gravity_nav/replay.py
 src/gravity_nav/reporting.py
 src/gravity_nav/requirements.py
 src/gravity_nav/requirements_config.py
+src/gravity_nav/ros2_bridge.py
 src/gravity_nav/sensor.py
 src/gravity_nav/simulation.py
 src/gravity_nav/streaming.py
@@ -40,6 +44,7 @@ src/gravity_nav/symplectic.py
 src/gravity_nav/tensor_ekf.py
 src/gravity_nav/trade_study.py
 src/gravity_nav/transport.py
+tests/test_adapters.py
 tests/test_assured_pnt.py
 tests/test_cold_atom.py
 tests/test_dynamics.py
@@ -48,6 +53,8 @@ tests/test_gateway.py
 tests/test_gravity_map.py
 tests/test_gravity_tensor.py
 tests/test_grid_map.py
+tests/test_grpc_auth.py
+tests/test_grpc_transport.py
 tests/test_hil.py
 tests/test_integrity.py
 tests/test_mission.py
@@ -57,5 +64,6 @@ tests/test_packets.py
 tests/test_quantum_simulation.py
 tests/test_replay.py
 tests/test_requirements.py
+tests/test_ros2_bridge.py
 tests/test_streaming.py
 tests/test_symplectic.py

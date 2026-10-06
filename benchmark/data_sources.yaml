@@ -1,0 +1,15 @@
+sources:
+  egm2008:
+    provider: National Geospatial-Intelligence Agency (NGA), Office of Geomatics
+    product: Earth Gravitational Model 2008 (EGM2008)
+    official_page: https://earth-info.nga.mil/index.php?dir=wgs84&action=wgs84
+    download_url: https://earth-info.nga.mil/php/download.php?file=egm-08interpolation
+    note: Official 2.5-minute interpolation grid is large; this benchmark does not redistribute it. Export/crop an authorized local region to CSV/GeoTIFF before use.
+    citation: Pavlis, N.K., Holmes, S.A., Kenyon, S.C., Factor, J.K. (2012), The development and evaluation of EGM2008.
+  wmm2025:
+    provider: NOAA NCEI / NGA / UK Defence Geographic Centre / British Geological Survey
+    product: World Magnetic Model 2025 (WMM2025)
+    official_page: https://www.ncei.noaa.gov/products/world-magnetic-model
+    api_base: https://www.ngdc.noaa.gov/geomag-web/calculators/calculateIgrfgrid
+    note: NOAA requires API registration for programmatic use. Set NOAA_GEOMAG_API_KEY before fetching a benchmark grid.
+    citation: NOAA NCEI Geomagnetic Modeling Team; British Geological Survey. 2024. World Magnetic Model 2025. DOI 10.25921/aqfd-sd83.

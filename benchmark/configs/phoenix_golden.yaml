@@ -1,0 +1,23 @@
+name: phoenix_public_data_golden
+reference:
+  lat_deg: 33.4484
+  lon_deg: -112.0740
+  alt_m: 350.0
+region:
+  lat_min: 33.0
+  lat_max: 33.9
+  lon_min: -112.7
+  lon_max: -111.6
+  step_deg: 0.05
+magnetic:
+  model: WMM
+  component: f
+  date: 2026-10-05
+gravity:
+  product: EGM2008
+  quantity: user_prepared_gravity_or_geoid_field
+benchmark:
+  scenario_config: configs/real_data_validation.yaml
+  sensor_profile: tactical
+  runs: 30
+  seed: 42

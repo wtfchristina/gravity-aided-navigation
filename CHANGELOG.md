@@ -78,3 +78,11 @@
 - Added Streamlit mission-requirements and integrity tab.
 - Added documentation for requirements engineering, integrity screening, and commercial decision-support positioning.
 - Expanded test suite to 17 passing tests.
+
+## Public Benchmark Package 1.0
+- Added authoritative-source registry for NGA EGM2008 and NOAA/NGA WMM2025.
+- Added NOAA WMM grid fetcher with API-key handling.
+- Added public gravity-grid normalization from CSV/GeoTIFF.
+- Added reproducible public-data benchmark runner and SHA-256 provenance manifest.
+- Added benchmark Markdown report and figures.
+- Added methodology/source documentation and offline unit tests.
